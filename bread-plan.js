@@ -11,7 +11,18 @@ const breads=[
  'Багет с добавками','С чесноком'
 ];
 const selected=new Set();
-const workKey=new URLSearchParams(location.search).get('k')||'';
+const editMode=document.body.dataset.edit==='owner';
+const params=new URLSearchParams(location.search);
+const workKey=params.get('k')||'';
+if(editMode){
+ const maskText=params.get('s')||'';
+ if(/^[0-9a-z]{1,4}$/.test(maskText)){
+  const mask=parseInt(maskText,36);
+  if(mask>0&&mask<(1<<breads.length)){
+   breads.forEach((name,index)=>{if(mask&(1<<index))selected.add(name)});
+  }
+ }
+}
 let submitting=false;
 let sentSignature='';
 const signature=()=>targetDate+'|'+[...selected].sort().join('|');
@@ -30,7 +41,7 @@ const moveMonth=(iso,step)=>{
 };
 const prettyDate=iso=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'long',year:'numeric'}).format(new Date(iso+'T12:00:00Z'));
 const prettyMonth=iso=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',month:'long',year:'numeric'}).format(new Date(iso+'T12:00:00Z'));
-let targetDate=addDays(todayInMoscow(),1);
+let targetDate=editMode&&/^\d{4}-\d{2}-\d{2}$/.test(params.get('d')||'')?params.get('d'):addDays(todayInMoscow(),1);
 let shownMonth=targetDate.slice(0,7)+'-01';
 $('branchName').textContent=branchNames[branch];
 $('modalBranch').textContent=branchNames[branch];
@@ -96,7 +107,7 @@ const update=()=>{
  $('selectedCount').textContent=String(selected.size);
  const alreadySent=selected.size>0&&sentSignature===signature();
  $('openConfirm').disabled=selected.size===0||submitting||alreadySent;
- $('openConfirm').textContent=alreadySent?'Отправлено ✓':'Отправить →';
+ $('openConfirm').textContent=alreadySent?(editMode?'Изменено ✓':'Отправлено ✓'):(editMode?'Сохранить изменения':'Отправить →');
 };
 for(const name of breads){
  const button=document.createElement('button');
@@ -134,9 +145,14 @@ $('confirmSelection').addEventListener('click',async()=>{
  if(submitting||selected.size===0||sentSignature===signature())return;
  const status=$('modalStatus');
  status.hidden=true;
- if(!workKey){
+ if(!editMode&&!workKey){
   status.hidden=false;
   status.textContent='Для отправки откройте страницу по рабочему QR-коду своей пекарни.';
+  return;
+ }
+ if(editMode&&(!params.get('m')||!params.get('s')||!params.get('sig')||!params.get('e'))){
+  status.hidden=false;
+  status.textContent='Откройте личную ссылку исправления из сообщения бота.';
   return;
  }
  const button=$('confirmSelection');
@@ -144,20 +160,30 @@ $('confirmSelection').addEventListener('click',async()=>{
  submitting=true;
  update();
  button.disabled=true;
- button.textContent='Отправляем…';
+ button.textContent=editMode?'Сохраняем…':'Отправляем…';
  try{
-  const response=await fetch('/api/send',{
+  const currentParams=new URLSearchParams(location.search);
+  const payload=editMode?{
+   branch,date:targetDate,breads:[...selected],
+   originalDate:currentParams.get('d'),
+   mask:currentParams.get('s'),
+   expires:currentParams.get('e'),
+   sig:currentParams.get('sig'),
+   messageId:currentParams.get('m')
+  }:{branch,date:targetDate,breads:[...selected],key:workKey};
+  const response=await fetch(editMode?'/api/edit':'/api/send',{
    method:'POST',
    headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({branch,date:targetDate,breads:[...selected],key:workKey}),
+   body:JSON.stringify(payload),
    cache:'no-store'
   });
   const result=await response.json().catch(()=>({}));
   if(!response.ok||result.ok!==true)throw new Error(result.message||'Telegram не принял сообщение. Попробуйте ещё раз.');
   sentSignature=requestedSignature;
+  if(editMode&&result.editUrl)history.replaceState(null,'',result.editUrl);
   $('confirmActions').hidden=true;
   status.hidden=false;
-  status.textContent='✅ План выпечки отправлен в Telegram!';
+  status.textContent=editMode?'✅ Сообщение в Telegram исправлено!':'✅ План выпечки отправлен в Telegram!';
  }catch(error){
   status.hidden=false;
   status.textContent='⚠️ '+String(error?.message||'Не удалось отправить. Попробуйте ещё раз.');
