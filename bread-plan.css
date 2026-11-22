@@ -68,13 +68,13 @@ h1{margin:8px 0 5px;font-family:Georgia,serif;font-size:clamp(37px,9vw,53px);lin
 @media(max-width:375px){main{padding:20px 10px 130px}.breads{gap:7px}.bread{min-height:119px;border-radius:13px;padding:16px 5px 12px}.bread .name{font-size:16px}.bread .tick{right:6px;top:6px;width:17px;height:17px}.branch{font-size:25px}}
 @media(prefers-reduced-motion:reduce){.bread{transition:none}}
 
-/* Compact, natural confirmation; small check circle inside a rounded card. */
+/* Explicit height prevents mobile <dialog> auto sizing from stretching to the viewport. */
 .dialog.is-success{
   width:min(350px,calc(100vw - 36px));
-  height:auto;
-  min-height:0;
+  height:228px;
+  min-height:228px;
   max-width:none;
-  max-height:none;
+  max-height:228px;
   overflow:hidden;
   padding:0;
   border-radius:25px;
@@ -92,9 +92,9 @@ h1{margin:8px 0 5px;font-family:Georgia,serif;font-size:clamp(37px,9vw,53px);lin
   text-align:center;
   gap:8px;
   width:100%;
-  height:auto;
-  min-height:204px;
-  padding:26px 22px 22px;
+  height:226px;
+  min-height:0;
+  padding:22px 22px 20px;
 }
 .dialog.is-success .sent-screen{display:flex}
 .sent-close{
