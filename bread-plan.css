@@ -67,3 +67,19 @@ h1{margin:8px 0 5px;font-family:Georgia,serif;font-size:clamp(37px,9vw,53px);lin
 .notice{background:#e8ece2;border-radius:13px;padding:12px 14px;font-size:13px;margin:13px 0 0;line-height:1.45}
 @media(max-width:375px){main{padding:20px 10px 130px}.breads{gap:7px}.bread{min-height:119px;border-radius:13px;padding:16px 5px 12px}.bread .name{font-size:16px}.bread .tick{right:6px;top:6px;width:17px;height:17px}.branch{font-size:25px}}
 @media(prefers-reduced-motion:reduce){.bread{transition:none}}
+
+/* Final confirmation replaces the entire review panel, not an extra notification box. */
+.dialog.is-success{width:min(345px,calc(100vw - 36px));overflow:hidden}
+.dialog.is-success .dialog-head,.dialog.is-success .dialog-body{display:none}
+.sent-screen{display:none;min-height:268px;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:36px 18px 30px;gap:8px;text-align:center}
+.dialog.is-success .sent-screen{display:flex}
+.sent-close{position:absolute;right:12px;top:12px;border:0;background:#eef0ea;color:#566653;width:34px;height:34px;border-radius:50%;font-size:23px;line-height:1;display:grid;place-items:center}
+.sent-check{display:grid;place-items:center;width:92px;height:92px;border-radius:50%;background:#e3eadc;margin-top:6px}
+.sent-check svg{width:62px;height:62px}
+.sent-title{font-size:30px;letter-spacing:-.025em;line-height:1.18;font-weight:700;color:#30382e;margin:8px 0 0}
+.sent-telegram{display:flex;align-items:center;justify-content:center;gap:7px;font-size:14px;color:#69766a}
+.sent-telegram svg{width:23px;height:23px}
+@media(prefers-reduced-motion:no-preference){
+ .dialog.is-success .sent-check{animation:sent-pop .24s ease-out both}
+ @keyframes sent-pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+}
