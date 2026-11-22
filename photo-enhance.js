@@ -30,11 +30,13 @@ $('photoRemove').addEventListener('click',()=>{
  original.removeAttribute('src');
  enhanced.removeAttribute('src');
  comparison.hidden=true;
+ $('photoRemove').hidden=true;
  showStatus('Фото необязательно — можно отправить только план.');
 });
 window.breadPhoto={
  get:()=>processed,
- isBusy:()=>busy
+ isBusy:()=>busy,
+ isInvalid:()=>Boolean(input.files?.length&&!processed&&!busy)
 };
 function loadImage(url){
  return new Promise((resolve,reject)=>{
@@ -99,6 +101,7 @@ input.addEventListener('change',async()=>{
   showStatus('Выберите фотографию размером не более 22 МБ.',true);input.value='';return;
  }
  const ticket=++generation;
+ $('photoRemove').hidden=false;
  busy=true;showStatus('Улучшаем свет и цвет фотографии…');
  const url=URL.createObjectURL(file);
  originalUrl=url;
