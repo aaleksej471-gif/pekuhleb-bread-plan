@@ -97,6 +97,7 @@ test('Staff submission sends a private owner link but no button into the group',
   });
   const calls=[];
   globalThis.fetch=async(url,options)=>{
+   if(options?.method==='HEAD')return {ok:false,status:404,headers:{get:()=>''}};
    calls.push({url,body:JSON.parse(options.body)});
    return {ok:true,status:200,json:async()=>({ok:true,result:{message_id:calls.length===1?812:813}})};
   };
