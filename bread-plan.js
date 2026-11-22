@@ -185,7 +185,7 @@ $('confirmSelection').addEventListener('click',async()=>{
   if(editMode&&result.editUrl)history.replaceState(null,'',result.editUrl);
   $('confirmActions').hidden=true;
   status.hidden=true;
-  $('sentTitle').textContent=editMode?'Изменено':'Отправлено';
+  $('sentTitle').textContent=editMode?'Изменения сохранены':'Сообщение отправлено';
   dialog.classList.add('is-success');
  }catch(error){
   status.hidden=false;
