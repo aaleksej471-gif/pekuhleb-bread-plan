@@ -1,5 +1,38 @@
 <!doctype html>
 <html lang="ru">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f3eee3"><title>План выпечки · Пеку Хлеб</title><link rel="stylesheet" href="/bread-plan.css"></head>
-<body><main><header class="header"><span class="brand">Пеку Хлеб</span><h1>План выпечки</h1><p class="lead">Для работы откройте ссылку или QR-код своей пекарни. У каждой пекарни отдельная страница.</p></header></main></body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f3eee3">
+<title>План выпечки · Пеку Хлеб</title>
+<link rel="stylesheet" href="/bread-plan.css?v=1">
+<style>
+main{padding-bottom:46px}
+.branches{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:23px}
+.branch-link{background:#dde3d7;border:1px solid #d3dacb;border-radius:20px;padding:19px 16px 17px;min-height:155px;display:flex;flex-direction:column;justify-content:space-between;color:#30382e;text-decoration:none}
+.branch-link strong{font-size:clamp(19px,5.1vw,26px);line-height:1.14;overflow-wrap:anywhere}
+.branch-link span{font-size:24px;align-self:flex-end;color:#43503b;line-height:1}
+.branch-link:focus-visible{outline:3px solid #ad7051;outline-offset:3px}
+.branch-link:active{background:#c8d3c2}
+.note{font-size:13px;line-height:1.55;color:#6e756a;margin:20px 0 0}
+@media(max-width:350px){.branches{gap:8px}.branch-link{padding:16px 11px;min-height:135px}.branch-link strong{font-size:19px}}
+</style>
+</head>
+<body>
+<main>
+<header class="header">
+<span class="brand">Пеку Хлеб</span>
+<h1>План выпечки</h1>
+<p class="lead">Выберите пекарню, чтобы посмотреть форму выбора хлеба.</p>
+</header>
+<nav class="branches" aria-label="Формы пекарен">
+<a class="branch-link" href="/bake-obrazcovaya.html"><strong>Образцовая</strong><span aria-hidden="true">↗</span></a>
+<a class="branch-link" href="/bake-chelyuskina.html"><strong>Челюскина</strong><span aria-hidden="true">↗</span></a>
+</nav>
+<p class="note">Это страница для просмотра обеих форм. Для сотрудников будут отдельные QR-коды, которые откроют нужную пекарню сразу, без этого выбора.</p>
+<p class="note">Отправка в Telegram начнёт работать после настройки тестовой группы и закрытых рабочих ссылок.</p>
+</main>
+</body>
 </html>
