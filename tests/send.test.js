@@ -17,13 +17,13 @@ const req=(body,headers={'content-type':'application/json'})=>({method:'POST',he
 
 test('Telegram message is compact, readable and ordered',()=>{
  const message=makeMessage('chelyuskina','2026-11-23',['Цельнозерновой','Луковый','С семечками']);
- assert.match(message,/🥖 Пеку Хлеб/);
+ assert.match(message,/🥖 ПЕКУ ХЛЕБ/);
  assert.match(message,/План выпечки/);
  assert.match(message,/Челюскина/);
- assert.match(message,/23 ноября · пн/);
+ assert.match(message,/23 ноября · понедельник/);
  assert.doesNotMatch(message,/2026 г\./);
  assert.match(message,/✓ Цельнозерновой\n✓ Луковый\n✓ С семечками/);
- assert.match(message,/Всего 3 вида хлеба/);
+ assert.match(message,/Всего: 3 вида хлеба/);
 });
 
 test('Unknown branch is rejected before delivery',async()=>{
