@@ -40,9 +40,9 @@ export default async function handler(req,res){
  const chosen=BREADS.filter(x=>breads.includes(x));
  const text=makeMessage(branch,date,chosen);
  try{
-  const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/editMessageText',{
+  const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/editMessageCaption',{
    method:'POST',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({chat_id:process.env.TELEGRAM_CHAT_ID,message_id:messageId,text,parse_mode:'HTML'}),
+   body:JSON.stringify({chat_id:process.env.TELEGRAM_CHAT_ID,message_id:messageId,caption:text,parse_mode:'HTML'}),
    signal:AbortSignal.timeout(10000)
   });
   const result=await response.json().catch(()=>({}));
