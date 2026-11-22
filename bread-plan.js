@@ -152,6 +152,11 @@ $('confirmSelection').addEventListener('click',async()=>{
   status.textContent='Для отправки откройте страницу по рабочему QR-коду своей пекарни.';
   return;
  }
+ if(!editMode&&window.breadPhoto?.isBusy?.()){
+  status.hidden=false;
+  status.textContent='Фотография ещё обрабатывается. Дождитесь предпросмотра.';
+  return;
+ }
  if(editMode&&(!params.get('m')||!params.get('s')||!params.get('sig')||!params.get('e'))){
   status.hidden=false;
   status.textContent='Откройте личную ссылку исправления из сообщения бота.';
@@ -172,7 +177,7 @@ $('confirmSelection').addEventListener('click',async()=>{
    expires:currentParams.get('e'),
    sig:currentParams.get('sig'),
    messageId:currentParams.get('m')
-  }:{branch,date:targetDate,breads:[...selected],key:workKey};
+  }:{branch,date:targetDate,breads:[...selected],key:workKey,...(window.breadPhoto?.get?.()?{photoData:window.breadPhoto.get()}: {})};
   const response=await fetch(editMode?'/api/edit':'/api/send',{
    method:'POST',
    headers:{'Content-Type':'application/json'},
