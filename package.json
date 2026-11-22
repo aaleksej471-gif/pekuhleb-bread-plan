@@ -1,0 +1,13 @@
+{
+  "name": "pekuhleb-bread-plan",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node --check api/send.js && node --check bread-plan.js && node --test tests/*.test.js",
+    "test": "node --test tests/*.test.js"
+  }
+}
