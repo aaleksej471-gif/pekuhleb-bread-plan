@@ -77,18 +77,46 @@ export default async function handler(req,res){
   // Сохраняем стабильный порядок, как в сетке на телефоне.
   const picked=BREADS.filter(x=>body.breads.includes(x));
   const message=makeMessage(branch,date,picked);
+  // A selected shelf photo has been locally improved in the phone, not generated.
+  // Keep the upload below Vercel's conservative 4.5MB request limit.
+  let shelfPhoto=null;
+  if(body.photoData!==undefined){
+    if(branch!=='obrazcovaya'||typeof body.photoData!=='string'||
+       body.photoData.length>3.1*1024*1024||
+       !body.photoData.startsWith('data:image/jpeg;base64,'))
+      return json(res,400,{ok:false,message:'Не удалось принять фото. Попробуйте выбрать другое.'});
+    const base64=body.photoData.slice('data:image/jpeg;base64,'.length);
+    if(base64.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(base64))
+      return json(res,400,{ok:false,message:'Неверный формат фотографии'});
+    shelfPhoto=Buffer.from(base64,'base64');
+    if(shelfPhoto.length>2.3*1024*1024||shelfPhoto.length<512||
+       shelfPhoto[0]!==0xff||shelfPhoto[1]!==0xd8||
+       shelfPhoto[shelfPhoto.length-2]!==0xff||shelfPhoto[shelfPhoto.length-1]!==0xd9)
+      return json(res,400,{ok:false,message:'Фото повреждено или слишком большое'});
+  }
   try{
-    const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendPhoto',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        chat_id:process.env.TELEGRAM_CHAT_ID,
-        photo:BREAD_PHOTO_URL,
-        caption:message,
-        parse_mode:'HTML'
-      }),
-      signal:AbortSignal.timeout(18000)
-    });
+    let request;
+    if(shelfPhoto){
+      const form=new FormData();
+      form.append('chat_id',process.env.TELEGRAM_CHAT_ID);
+      form.append('caption',message);
+      form.append('parse_mode','HTML');
+      form.append('photo',new Blob([shelfPhoto],{type:'image/jpeg'}),'vitrina.jpg');
+      request={method:'POST',body:form,signal:AbortSignal.timeout(18000)};
+    }else{
+      request={
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          chat_id:process.env.TELEGRAM_CHAT_ID,
+          photo:BREAD_PHOTO_URL,
+          caption:message,
+          parse_mode:'HTML'
+        }),
+        signal:AbortSignal.timeout(18000)
+      };
+    }
+    const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendPhoto',request);
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data.ok!==true){
       console.error('Bread plan Telegram delivery failed:',response.status,data.error_code||'');
