@@ -2,6 +2,10 @@ import { timingSafeEqual } from 'node:crypto';
 import { BREADS, BRANCH_NAMES } from '../shared/catalog.js';
 import { makeEditUrl, ownerButton } from '../shared/owner-edit.js';
 
+// Temporary licensed sample image for the Telegram group visual test.
+// Replace with an original bakery photo once the layout is approved.
+export const BREAD_PHOTO_URL = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?fm=jpg&w=1100&q=82&fit=crop';
+
 const KEY_ENV = {
   obrazcovaya: 'BREAD_KEY_OBRAZCOVAYA',
   chelyuskina: 'BREAD_KEY_CHELYUSKINA'
@@ -74,21 +78,21 @@ export default async function handler(req,res){
   const picked=BREADS.filter(x=>body.breads.includes(x));
   const message=makeMessage(branch,date,picked);
   try{
-    const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendMessage',{
+    const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendPhoto',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         chat_id:process.env.TELEGRAM_CHAT_ID,
-        text:message,
-        parse_mode:'HTML',
-        disable_web_page_preview:true
+        photo:BREAD_PHOTO_URL,
+        caption:message,
+        parse_mode:'HTML'
       }),
-      signal:AbortSignal.timeout(10000)
+      signal:AbortSignal.timeout(18000)
     });
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data.ok!==true){
       console.error('Bread plan Telegram delivery failed:',response.status,data.error_code||'');
-      return json(res,502,{ok:false,message:'Telegram не принял сообщение. Попробуйте ещё раз или сообщите администратору.'});
+      return json(res,502,{ok:false,message:'Telegram не принял фотографию с планом. Попробуйте ещё раз или сообщите администратору.'});
     }
     // Only the owner receives a private edit link. It is NOT shown in the staff group.
     const messageId=data.result?.message_id;
