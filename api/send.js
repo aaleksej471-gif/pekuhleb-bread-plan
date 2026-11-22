@@ -42,7 +42,7 @@ export const makeMessage=(branch,date,breads)=>{
     '<b>'+esc(BRANCH_NAMES[branch])+'</b> · '+esc(dayMonth),
     '',
     '<b>'+heading+'</b>',
-    ...breads.map(x=>esc(x))
+    ...breads.map(x=>'✅ '+esc(x))
   ].join('\n');
 };
 
