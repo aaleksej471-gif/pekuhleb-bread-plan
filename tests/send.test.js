@@ -54,6 +54,7 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   Object.assign(process.env,{TELEGRAM_BOT_TOKEN:'fake-test-token',TELEGRAM_CHAT_ID:'-100000000',BREAD_KEY_OBRAZCOVAYA:'testing-private-link'});
   let hits=0,received;
   globalThis.fetch=async(url,init)=>{
+   if(init?.method==='HEAD')return {ok:false,status:404,headers:{get:()=>''}};
    hits++;
    assert.match(url,/api.telegram.org\/botfake-test-token\/sendPhoto$/);
    received=JSON.parse(init.body);
