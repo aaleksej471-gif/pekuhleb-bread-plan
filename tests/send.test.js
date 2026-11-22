@@ -15,15 +15,17 @@ function fakeRes(){
 }
 const req=(body,headers={'content-type':'application/json'})=>({method:'POST',headers,body});
 
-test('Telegram message is compact, readable and ordered',()=>{
+test('Telegram message is minimal and readable',()=>{
  const message=makeMessage('chelyuskina','2026-11-23',['Цельнозерновой','Луковый','С семечками']);
- assert.match(message,/🥖 ПЕКУ ХЛЕБ/);
- assert.match(message,/План выпечки/);
- assert.match(message,/Челюскина/);
- assert.match(message,/23 ноября · понедельник/);
- assert.doesNotMatch(message,/2026 г\./);
- assert.match(message,/✓ Цельнозерновой\n✓ Луковый\n✓ С семечками/);
- assert.match(message,/Всего: 3 вида хлеба/);
+ assert.match(message,/<b>ПЛАН ВЫПЕЧКИ<\/b>/);
+ assert.match(message,/<b>Челюскина<\/b> · 23 ноября/);
+ assert.match(message,/Цельнозерновой\nЛуковый\nС семечками/);
+ assert.doesNotMatch(message,/Пеку Хлеб|Всего|✓|📍|📅|🥖/);
+});
+
+test('Telegram headline says today when the bake date is today',()=>{
+ const message=makeMessage('obrazcovaya',dateInMoscow(),['Багет']);
+ assert.match(message,/<b>Сегодня выпекаем<\/b>/);
 });
 
 test('Unknown branch is rejected before delivery',async()=>{
@@ -65,7 +67,7 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   await handler(req({branch:'obrazcovaya',date:dateInMoscow(),breads:['Багет','Цельнозерновой'],key:'testing-private-link'}),good);
   assert.equal(good.code,200);assert.equal(good.body.ok,true);assert.equal(hits,1);
   assert.equal(received.parse_mode,'HTML');
-  assert.match(received.text,/✓ Цельнозерновой\n✓ Багет/);
+  assert.match(received.text,/Цельнозерновой\nБагет/);
   assert.doesNotMatch(received.text,/testing-private-link/);
  }finally{
   globalThis.fetch=prevFetch;
