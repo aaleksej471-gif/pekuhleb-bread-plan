@@ -122,6 +122,7 @@ for(const name of breads){
 const dialog=$('confirmDialog');
 const close=()=>dialog.close();
 $('modalClose').addEventListener('click',close);
+$('sentClose').addEventListener('click',close);
 $('cancelConfirm').addEventListener('click',close);
 dialog.addEventListener('click',event=>{
  if(event.target!==dialog)return;
@@ -130,6 +131,7 @@ dialog.addEventListener('click',event=>{
 });
 $('openConfirm').addEventListener('click',()=>{
  if(selected.size===0)return;
+ dialog.classList.remove('is-success');
  $('confirmList').replaceChildren();
  for(const name of breads){
   if(!selected.has(name))continue;
@@ -182,8 +184,9 @@ $('confirmSelection').addEventListener('click',async()=>{
   sentSignature=requestedSignature;
   if(editMode&&result.editUrl)history.replaceState(null,'',result.editUrl);
   $('confirmActions').hidden=true;
-  status.hidden=false;
-  status.textContent=editMode?'✅ Сообщение в Telegram исправлено!':'✅ План выпечки отправлен в Telegram!';
+  status.hidden=true;
+  $('sentTitle').textContent=editMode?'Изменено':'Отправлено';
+  dialog.classList.add('is-success');
  }catch(error){
   status.hidden=false;
   status.textContent='⚠️ '+String(error?.message||'Не удалось отправить. Попробуйте ещё раз.');
