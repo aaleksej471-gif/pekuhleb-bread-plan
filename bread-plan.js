@@ -157,6 +157,11 @@ $('confirmSelection').addEventListener('click',async()=>{
   status.textContent='Фотография ещё обрабатывается. Дождитесь предпросмотра.';
   return;
  }
+ if(!editMode&&window.breadPhoto?.isInvalid?.()){
+  status.hidden=false;
+  status.textContent='Фотография не обработана. Выберите другую или нажмите «Убрать фото».';
+  return;
+ }
  if(editMode&&(!params.get('m')||!params.get('s')||!params.get('sig')||!params.get('e'))){
   status.hidden=false;
   status.textContent='Откройте личную ссылку исправления из сообщения бота.';
