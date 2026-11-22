@@ -19,7 +19,7 @@ test('Telegram message is minimal and readable',()=>{
  const message=makeMessage('chelyuskina','2026-11-23',['Цельнозерновой','Луковый','С семечками']);
  assert.match(message,/<b>ПЛАН ВЫПЕЧКИ<\/b>/);
  assert.match(message,/<b>Челюскина<\/b> · 23 ноября/);
- assert.match(message,/Цельнозерновой\nЛуковый\nС семечками/);
+ assert.match(message,/✅ Цельнозерновой\n✅ Луковый\n✅ С семечками/);
  assert.doesNotMatch(message,/Пеку Хлеб|Всего|✓|📍|📅|🥖/);
 });
 
@@ -67,7 +67,7 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   await handler(req({branch:'obrazcovaya',date:dateInMoscow(),breads:['Багет','Цельнозерновой'],key:'testing-private-link'}),good);
   assert.equal(good.code,200);assert.equal(good.body.ok,true);assert.equal(hits,1);
   assert.equal(received.parse_mode,'HTML');
-  assert.match(received.text,/Цельнозерновой\nБагет/);
+  assert.match(received.text,/✅ Цельнозерновой\n✅ Багет/);
   assert.doesNotMatch(received.text,/testing-private-link/);
  }finally{
   globalThis.fetch=prevFetch;
