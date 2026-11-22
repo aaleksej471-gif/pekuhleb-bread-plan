@@ -35,21 +35,21 @@ export const makeMessage=(branch,date,breads)=>{
     timeZone:'UTC',day:'numeric',month:'long'
   }).format(day);
   const weekday=new Intl.DateTimeFormat('ru-RU',{
-    timeZone:'UTC',weekday:'short'
+    timeZone:'UTC',weekday:'long'
   }).format(day);
   const countWord=breads.length%10===1&&breads.length%100!==11?'вид хлеба':
     [2,3,4].includes(breads.length%10)&&![12,13,14].includes(breads.length%100)?'вида хлеба':'видов хлеба';
   return [
-    '<b>🥖 Пеку Хлеб</b>',
+    '🥖 ПЕКУ ХЛЕБ',
     '<b>План выпечки</b>',
     '',
     '📍 <b>'+esc(BRANCH_NAMES[branch])+'</b>',
     '📅 '+esc(dayMonth)+' · '+esc(weekday),
     '',
-    '<b>Выпекаем</b>',
+    '<b>Выпекаем:</b>',
     ...breads.map(x=>'✓ '+esc(x)),
     '',
-    '<i>Всего '+breads.length+' '+countWord+'</i>'
+    '<i>Всего: '+breads.length+' '+countWord+'</i>'
   ].join('\n');
 };
 
