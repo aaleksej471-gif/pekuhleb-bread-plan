@@ -7,8 +7,9 @@
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#f3eee3">
 <title>План выпечки · Образцовая · Пеку Хлеб</title>
-<link rel="stylesheet" href="/bread-plan.css?v=6">
-<script src="/bread-plan.js?v=4" defer></script>
+<link rel="stylesheet" href="/bread-plan.css?v=7">
+<script src="/photo-enhance.js?v=1" defer></script>
+<script src="/bread-plan.js?v=7" defer></script>
 </head>
 <body data-branch="obrazcovaya">
 <main>
@@ -23,6 +24,22 @@
   <span class="date-chevron" aria-hidden="true">▾</span>
 </button>
 <div class="breads" id="breadGrid" role="group" aria-label="Выбрать виды хлеба"></div>
+<section class="photo-section" aria-label="Фото витрины для Telegram">
+ <div class="photo-head"><strong>Фото витрины</strong><span>Пробный режим</span></div>
+ <p class="photo-desc">Сфотографируй витрину или выбери фото. Мы мягко поправим свет, тени и оттенки хлеба — без дорисовки.</p>
+ <label class="photo-upload" for="photoInput"><span aria-hidden="true">▣</span> Сделать фото / выбрать из галереи</label>
+ <input type="file" id="photoInput" accept="image/*" hidden>
+ <p id="photoStatus" class="photo-status" role="status">Фото необязательно — можно отправить только план.</p>
+ <div class="photo-comparison" id="photoComparison" hidden>
+  <div class="photo-tabs" role="group" aria-label="Сравнение фотографии">
+   <button type="button" data-photo-view="original" aria-pressed="false">Оригинал</button>
+   <button type="button" data-photo-view="enhanced" aria-pressed="true">После обработки</button>
+  </div>
+  <img id="photoOriginal" alt="Оригинальное фото витрины" hidden>
+  <img id="photoEnhanced" alt="Фото витрины с улучшенным светом и цветом">
+  <button type="button" class="photo-remove" id="photoRemove">Убрать фото</button>
+ </div>
+</section>
 
 </main>
 <footer class="footer-bar">
