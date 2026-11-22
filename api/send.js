@@ -93,7 +93,8 @@ export default async function handler(req,res){
     // Only the owner receives a private edit link. It is NOT shown in the staff group.
     const messageId=data.result?.message_id;
     const ownerChat=process.env.TELEGRAM_OWNER_CHAT_ID;
-    if(ownerChat&&Number.isSafeInteger(messageId)&&messageId>0){
+    // Telegram private user IDs are positive; never risk sending edit access to a group.
+    if(/^\d{4,20}$/.test(String(ownerChat||''))&&Number.isSafeInteger(messageId)&&messageId>0){
       try{
         const editUrl=makeEditUrl({branch,date,breads:picked,messageId});
         const ownerResponse=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendMessage',{
