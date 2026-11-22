@@ -2,9 +2,16 @@ import { timingSafeEqual } from 'node:crypto';
 import { BREADS, BRANCH_NAMES } from '../shared/catalog.js';
 import { makeEditUrl, ownerButton } from '../shared/owner-edit.js';
 
-// Temporary licensed sample image for the Telegram group visual test.
-// Replace with an original bakery photo once the layout is approved.
+// Stock image is only a fallback until our unedited bakery photo is present.
 export const BREAD_PHOTO_URL = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?fm=jpg&w=1100&q=82&fit=crop';
+export const ORIGINAL_PHOTO_URL = 'https://project-ply6y.vercel.app/plan-photo-original.jpg';
+export const selectPhotoUrl = async () => {
+  try {
+    const response=await fetch(ORIGINAL_PHOTO_URL,{method:'HEAD',signal:AbortSignal.timeout(4000)});
+    if(response.ok && String(response.headers?.get('content-type')||'').startsWith('image/'))return ORIGINAL_PHOTO_URL;
+  }catch{}
+  return BREAD_PHOTO_URL;
+};
 
 const KEY_ENV = {
   obrazcovaya: 'BREAD_KEY_OBRAZCOVAYA',
@@ -109,7 +116,7 @@ export default async function handler(req,res){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           chat_id:process.env.TELEGRAM_CHAT_ID,
-          photo:BREAD_PHOTO_URL,
+          photo:await selectPhotoUrl(),
           caption:message,
           parse_mode:'HTML'
         }),
