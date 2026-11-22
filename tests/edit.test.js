@@ -72,7 +72,7 @@ test('Owner correction edits existing Telegram message, not sending another',asy
   assert.match(requestUrl,/\/editMessageText$/);
   assert.equal(payload.chat_id,'-100999999');
   assert.equal(payload.message_id,812);
-  assert.match(payload.text,/✅ Луковый\n✅ Ржаной/);
+  assert.match(payload.text,/✓ Луковый\n✓ Ржаной/);
   assert.equal(validEditLink(linkParams(r.body.editUrl)),true);
   assert.equal(r.body.editUrl.startsWith('https://project-ply6y.vercel.app/edit-obrazcovaya.html'),true);
   const forged=fakeRes();
