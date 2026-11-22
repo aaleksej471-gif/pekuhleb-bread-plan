@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f3eee3">
+<title>План выпечки · Челюскина · Пеку Хлеб</title>
+<link rel="stylesheet" href="/bread-plan.css?v=1">
+<script src="/bread-plan.js?v=1" defer></script>
+</head>
+<body data-branch="chelyuskina">
+<main>
+<header class="header">
+<span class="brand">Пеку Хлеб · План выпечки</span>
+<h1>Что печём?</h1>
+<div id="branchName" class="branch">Челюскина</div>
+<p class="lead">Выберите нужный хлеб — нажмите на кубик, и он выделится.</p>
+</header>
+<button type="button" class="date date-trigger" id="dateTrigger" aria-haspopup="dialog" aria-controls="dateDialog">
+  <span class="date-copy"><small>Дата выпечки · нажми, чтобы изменить</small><strong class="selected-date" id="targetDate">—</strong></span>
+  <span class="date-chevron" aria-hidden="true">▾</span>
+</button>
+<div class="breads" id="breadGrid" role="group" aria-label="Выбрать виды хлеба"></div>
+
+</main>
+<footer class="footer-bar">
+<div class="footer-inner">
+<div class="selection-count"><strong id="selectedCount">0</strong><small>выбрано</small></div>
+<button class="primary" type="button" id="openConfirm" disabled>Отправить →</button>
+</div>
+</footer>
+<dialog class="date-dialog" id="dateDialog" aria-labelledby="dateDialogTitle">
+  <div class="date-dialog-head"><strong class="date-dialog-title" id="dateDialogTitle">Выбрать дату выпечки</strong><button type="button" class="close" id="dateClose" aria-label="Закрыть календарь">×</button></div>
+  <div class="date-dialog-body">
+   <div class="month-nav"><button type="button" class="month-arrow" id="calendarPrev" aria-label="Предыдущий месяц">‹</button><strong id="calendarMonth"></strong><button type="button" class="month-arrow" id="calendarNext" aria-label="Следующий месяц">›</button></div>
+   <div class="calendar-grid" id="calendarGrid" role="group" aria-label="Дни месяца"></div>
+   <div class="date-quick"><button type="button" id="dateToday">Сегодня</button><button type="button" id="dateTomorrow">Завтра</button></div>
+  </div>
+</dialog>
+<dialog id="confirmDialog" class="dialog" aria-label="Проверить план выпечки">
+<div class="dialog-head"><strong>Подтвердить выбор</strong><button type="button" id="modalClose" class="close" aria-label="Закрыть">×</button></div>
+<div class="dialog-body">
+<p id="modalBranch" class="dialog-place">Челюскина</p>
+<p id="modalDate" class="dialog-date"></p>
+<div id="confirmList" class="list"></div>
+<p class="preview-note">После подтверждения список поступит в Telegram-группу.</p>
+<div id="confirmActions" class="dialog-actions"><button type="button" id="cancelConfirm" class="secondary">Изменить</button><button type="button" id="confirmSelection" class="primary">Подтвердить</button></div>
+<p id="modalStatus" class="notice" hidden role="status"></p>
+</div>
+</dialog>
+</body>
+</html>
