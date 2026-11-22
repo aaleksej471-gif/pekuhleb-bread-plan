@@ -30,21 +30,26 @@ const validDate=(iso)=>{
 };
 const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const makeMessage=(branch,date,breads)=>{
-  const niceDate=new Intl.DateTimeFormat('ru-RU',{
-    timeZone:'UTC',day:'numeric',month:'long',year:'numeric',weekday:'long'
-  }).format(new Date(date+'T12:00:00Z'));
+  const day=new Date(date+'T12:00:00Z');
+  const dayMonth=new Intl.DateTimeFormat('ru-RU',{
+    timeZone:'UTC',day:'numeric',month:'long'
+  }).format(day);
+  const weekday=new Intl.DateTimeFormat('ru-RU',{
+    timeZone:'UTC',weekday:'short'
+  }).format(day);
+  const countWord=breads.length%10===1&&breads.length%100!==11?'вид хлеба':
+    [2,3,4].includes(breads.length%10)&&![12,13,14].includes(breads.length%100)?'вида хлеба':'видов хлеба';
   return [
-    '<b>🥖 ПЕКУ ХЛЕБ</b>',
-    '<b>ПЛАН ВЫПЕЧКИ</b>',
+    '<b>🥖 Пеку Хлеб</b>',
+    '<b>План выпечки</b>',
     '',
-    '🏠 <b>'+esc(BRANCH_NAMES[branch])+'</b>',
-    '📅 <b>'+esc(niceDate)+'</b>',
+    '📍 <b>'+esc(BRANCH_NAMES[branch])+'</b>',
+    '📅 '+esc(dayMonth)+' · '+esc(weekday),
     '',
-    '<b>ВЫПЕКАЕМ:</b>',
+    '<b>Выпекаем</b>',
     ...breads.map(x=>'✓ '+esc(x)),
     '',
-    '<b>Всего: '+breads.length+' '+(breads.length%10===1&&breads.length%100!==11?'вид хлеба':
-    [2,3,4].includes(breads.length%10)&&![12,13,14].includes(breads.length%100)?'вида хлеба':'видов хлеба')+'</b>'
+    '<i>Всего '+breads.length+' '+countWord+'</i>'
   ].join('\n');
 };
 
