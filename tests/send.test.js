@@ -55,7 +55,7 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   let hits=0,received;
   globalThis.fetch=async(url,init)=>{
    hits++;
-   assert.match(url,/api.telegram.org\/botfake-test-token\/sendMessage$/);
+   assert.match(url,/api.telegram.org\/botfake-test-token\/sendPhoto$/);
    received=JSON.parse(init.body);
    return {ok:true,json:async()=>({ok:true})};
   };
@@ -67,8 +67,9 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   await handler(req({branch:'obrazcovaya',date:dateInMoscow(),breads:['Багет','Цельнозерновой'],key:'testing-private-link'}),good);
   assert.equal(good.code,200);assert.equal(good.body.ok,true);assert.equal(hits,1);
   assert.equal(received.parse_mode,'HTML');
-  assert.match(received.text,/✓ Цельнозерновой\n✓ Багет/);
-  assert.doesNotMatch(received.text,/testing-private-link/);
+  assert.match(received.photo,/^https:\/\/images\.unsplash\.com\/photo-/);
+  assert.match(received.caption,/✓ Цельнозерновой\n✓ Багет/);
+  assert.doesNotMatch(received.caption,/testing-private-link/);
  }finally{
   globalThis.fetch=prevFetch;
   for(const [k,v] of Object.entries(prevEnv))v===undefined?delete process.env[k]:process.env[k]=v;
