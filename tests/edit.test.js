@@ -69,10 +69,10 @@ test('Owner correction edits existing Telegram message, not sending another',asy
   }),r);
   assert.equal(r.statusCode,200);
   assert.equal(count,1);
-  assert.match(requestUrl,/\/editMessageText$/);
+  assert.match(requestUrl,/\/editMessageCaption$/);
   assert.equal(payload.chat_id,'-100999999');
   assert.equal(payload.message_id,812);
-  assert.match(payload.text,/✓ Луковый\n✓ Ржаной/);
+  assert.match(payload.caption,/✓ Луковый\n✓ Ржаной/);
   assert.equal(validEditLink(linkParams(r.body.editUrl)),true);
   assert.equal(r.body.editUrl.startsWith('https://project-ply6y.vercel.app/edit-obrazcovaya.html'),true);
   const forged=fakeRes();
@@ -105,12 +105,14 @@ test('Staff submission sends a private owner link but no button into the group',
   assert.equal(r.statusCode,200);
   assert.equal(calls.length,2);
   assert.equal(calls[0].body.chat_id,'-100999999');
+  assert.match(calls[0].url,/\/sendPhoto$/);
+  assert.match(calls[0].body.photo,/^https:\/\/images\.unsplash\.com\/photo-/);
   assert.equal(calls[0].body.reply_markup,undefined);
   assert.equal(calls[1].body.chat_id,'321987');
   const editLink=calls[1].body.reply_markup.inline_keyboard[0][0].url;
   assert.equal(validEditLink(linkParams(editLink)),true);
-  assert.equal(calls[0].body.text.includes('Фугас'),true);
-  assert.equal(calls[0].body.text.includes('test-staff-key'),false);
+  assert.equal(calls[0].body.caption.includes('Фугас'),true);
+  assert.equal(calls[0].body.caption.includes('test-staff-key'),false);
  }finally{
   globalThis.fetch=prevFetch;
   for(const [key,val] of Object.entries(env))val===undefined?delete process.env[key]:process.env[key]=val;
