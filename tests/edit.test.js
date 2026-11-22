@@ -26,7 +26,7 @@ function linkParams(url){
   branch:u.pathname.includes('obrazcovaya')?'obrazcovaya':'chelyuskina',
   date:u.searchParams.get('d'),mask:u.searchParams.get('s'),
   messageId:Number(u.searchParams.get('m')),
-  expires:u.searchParams.get('e'),sig:u.searchParams.get('sig')
+  expires:u.searchParams.get('e'),sig:u.searchParams.get('sig'),sender:u.searchParams.get('a')||''
  };
 }
 const request=(body)=>({method:'POST',headers:{'content-type':'application/json'},body});
@@ -54,7 +54,7 @@ test('Owner correction edits existing Telegram message, not sending another',asy
    TELEGRAM_BOT_TOKEN:'test-bot-token',TELEGRAM_CHAT_ID:'-100999999',
    BREAD_KEY_OBRAZCOVAYA:'test-staff-key'
   });
-  const link=makeEditUrl({branch:'obrazcovaya',date:today(),breads:['Ржаной'],messageId:812});
+  const link=makeEditUrl({branch:'obrazcovaya',date:today(),breads:['Ржаной'],messageId:812,sender:'Надя'});
   const params=linkParams(link);
   let count=0,requestUrl=null,payload=null;
   globalThis.fetch=async(url,options)=>{
@@ -64,7 +64,7 @@ test('Owner correction edits existing Telegram message, not sending another',asy
   const r=fakeRes();
   await editHandler(request({
    branch:params.branch,originalDate:params.date,mask:params.mask,
-   expires:params.expires,sig:params.sig,messageId:params.messageId,
+   expires:params.expires,sig:params.sig,messageId:params.messageId,sender:params.sender,
    date:today(),breads:['Луковый','Ржаной']
   }),r);
   assert.equal(r.statusCode,200);
@@ -72,6 +72,7 @@ test('Owner correction edits existing Telegram message, not sending another',asy
   assert.match(requestUrl,/\/editMessageCaption$/);
   assert.equal(payload.chat_id,'-100999999');
   assert.equal(payload.message_id,812);
+  assert.match(payload.caption,/Отправил\(а\): Надя/);
   assert.match(payload.caption,/✓ Луковый\n✓ Ржаной/);
   assert.equal(validEditLink(linkParams(r.body.editUrl)),true);
   assert.equal(r.body.editUrl.startsWith('https://project-ply6y.vercel.app/edit-obrazcovaya.html'),true);
@@ -102,7 +103,7 @@ test('Staff submission sends a private owner link but no button into the group',
    return {ok:true,status:200,json:async()=>({ok:true,result:{message_id:calls.length===1?812:813}})};
   };
   const r=fakeRes();
-  await sendHandler(request({branch:'obrazcovaya',date:today(),breads:['Фугас'],key:'test-staff-key'}),r);
+  await sendHandler(request({branch:'obrazcovaya',date:today(),breads:['Фугас'],key:'test-staff-key',sender:'Надя'}),r);
   assert.equal(r.statusCode,200);
   assert.equal(calls.length,2);
   assert.equal(calls[0].body.chat_id,'-100999999');
@@ -112,6 +113,8 @@ test('Staff submission sends a private owner link but no button into the group',
   assert.equal(calls[1].body.chat_id,'321987');
   const editLink=calls[1].body.reply_markup.inline_keyboard[0][0].url;
   assert.equal(validEditLink(linkParams(editLink)),true);
+  assert.equal(validEditLink({...linkParams(editLink),sender:'Валя'}),false);
+  assert.match(calls[0].body.caption,/Отправил\(а\): Надя/);
   assert.equal(calls[0].body.caption.includes('Фугас'),true);
   assert.equal(calls[0].body.caption.includes('test-staff-key'),false);
  }finally{

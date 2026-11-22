@@ -14,7 +14,7 @@ function response(){
 const savedKeys=['TELEGRAM_BOT_TOKEN','TELEGRAM_CHAT_ID','TELEGRAM_OWNER_CHAT_ID','BREAD_KEY_OBRAZCOVAYA'];
 const fakeReq=(photoData,branch='obrazcovaya')=>({
  method:'POST',headers:{'content-type':'application/json'},
- body:{branch,date:today(),breads:['Луковый'],key:'photo-test-key',...(photoData!==undefined?{photoData}:{})}
+ body:{branch,date:today(),breads:['Луковый'],key:'photo-test-key',sender:branch==='obrazcovaya'?'Надя':'Арина',...(photoData!==undefined?{photoData}:{})}
 });
 const jpeg=Buffer.alloc(1300,123);
 jpeg[0]=0xff;jpeg[1]=0xd8;jpeg[2]=0xff;

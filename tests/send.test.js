@@ -65,7 +65,7 @@ test('A correct request calls Telegram once; a wrong key cannot',async()=>{
   assert.equal(bad.code,401);assert.equal(hits,0);
 
   const good=fakeRes();
-  await handler(req({branch:'obrazcovaya',date:dateInMoscow(),breads:['Багет','Цельнозерновой'],key:'testing-private-link'}),good);
+  await handler(req({branch:'obrazcovaya',date:dateInMoscow(),breads:['Багет','Цельнозерновой'],key:'testing-private-link',sender:'Надя'}),good);
   assert.equal(good.code,200);assert.equal(good.body.ok,true);assert.equal(hits,1);
   assert.equal(received.parse_mode,'HTML');
   assert.match(received.photo,/^https:\/\/images\.unsplash\.com\/photo-/);

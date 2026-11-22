@@ -1,3 +1,5 @@
+import { SENDERS } from './shared/senders.js';
+
 (()=>{
 'use strict';
 const branch=document.body.dataset.branch;
@@ -120,6 +122,14 @@ for(const name of breads){
  grid.append(button);
 }
 const dialog=$('confirmDialog');
+const senderSelect=$('senderName');
+const confirmButton=$('confirmSelection');
+if(senderSelect){
+ for(const name of SENDERS[branch])senderSelect.add(new Option(name,name));
+ senderSelect.addEventListener('change',()=>{
+  confirmButton.disabled=submitting||!senderSelect.value;
+ });
+}
 const close=()=>dialog.close();
 $('modalClose').addEventListener('click',close);
 $('sentClose').addEventListener('click',close);
@@ -140,11 +150,12 @@ $('openConfirm').addEventListener('click',()=>{
  }
  $('modalStatus').hidden=true;
  $('confirmActions').hidden=false;
+ confirmButton.disabled=Boolean(senderSelect&&!senderSelect.value);
  syncDate();
  dialog.showModal();
 });
 $('confirmSelection').addEventListener('click',async()=>{
- if(submitting||selected.size===0||sentSignature===signature())return;
+ if(submitting||selected.size===0||sentSignature===signature()||(senderSelect&&!senderSelect.value))return;
  const status=$('modalStatus');
  status.hidden=true;
  if(!editMode&&!workKey){
@@ -157,11 +168,12 @@ $('confirmSelection').addEventListener('click',async()=>{
   status.textContent='Откройте личную ссылку исправления из сообщения бота.';
   return;
  }
- const button=$('confirmSelection');
+ const button=confirmButton;
  const requestedSignature=signature();
  submitting=true;
  update();
  button.disabled=true;
+ if(senderSelect)senderSelect.disabled=true;
  button.textContent=editMode?'Сохраняем…':'Отправляем…';
  try{
   const currentParams=new URLSearchParams(location.search);
@@ -171,8 +183,9 @@ $('confirmSelection').addEventListener('click',async()=>{
    mask:currentParams.get('s'),
    expires:currentParams.get('e'),
    sig:currentParams.get('sig'),
-   messageId:currentParams.get('m')
-  }:{branch,date:targetDate,breads:[...selected],key:workKey};
+   messageId:currentParams.get('m'),
+   sender:currentParams.get('a')||''
+  }:{branch,date:targetDate,breads:[...selected],key:workKey,sender:senderSelect.value};
   const response=await fetch(editMode?'/api/edit':'/api/send',{
    method:'POST',
    headers:{'Content-Type':'application/json'},
@@ -192,7 +205,8 @@ $('confirmSelection').addEventListener('click',async()=>{
   status.textContent='⚠️ '+String(error?.message||'Не удалось отправить. Попробуйте ещё раз.');
  }finally{
   submitting=false;
-  button.disabled=false;
+  if(senderSelect)senderSelect.disabled=false;
+  button.disabled=Boolean(senderSelect&&!senderSelect.value);
   button.textContent='Подтвердить';
   update();
  }

@@ -18,14 +18,15 @@ export function decodeBreads(raw){
  if(!Number.isSafeInteger(mask)||mask<1||mask>=(1<<BREADS.length))return null;
  return BREADS.filter((name,index)=>mask&(1<<index));
 }
-function editSignature(branch,date,mask,messageId,expires){
+function editSignature(branch,date,mask,messageId,expires,sender){
  const secret=process.env.TELEGRAM_BOT_TOKEN;
  if(!secret)throw new Error('Telegram bot not configured');
  return createHmac('sha256',secret)
  .update('bread-plan-owner-v2\n'+[branch,date,mask,messageId,expires].join('\n'))
+ .update(sender?'\n'+sender:'')
  .digest('base64url');
 }
-export function makeEditUrl({branch,date,breads,messageId}){
+export function makeEditUrl({branch,date,breads,messageId,sender=''}){
  if(!Object.hasOwn(BRANCH_NAMES,branch)||!/^\d{4}-\d{2}-\d{2}$/.test(date)||
  !Number.isSafeInteger(messageId)||messageId<1||
  !Array.isArray(breads)||!breads.length||breads.some(x=>!BREADS.includes(x)))throw new Error('Invalid edit target');
@@ -36,16 +37,17 @@ export function makeEditUrl({branch,date,breads,messageId}){
  url.searchParams.set('d',date);
  url.searchParams.set('s',mask);
  url.searchParams.set('e',expires);
- url.searchParams.set('sig',editSignature(branch,date,mask,messageId,expires));
+ if(sender)url.searchParams.set('a',sender);
+ url.searchParams.set('sig',editSignature(branch,date,mask,messageId,expires,sender));
  return url.href;
 }
-export function validEditLink({branch,date,mask,messageId,expires,sig}){
+export function validEditLink({branch,date,mask,messageId,expires,sig,sender=''}){
  if(!Object.hasOwn(BRANCH_NAMES,branch)||typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date)||
- !Number.isSafeInteger(messageId)||messageId<1||!decodeBreads(mask)||typeof sig!=='string'||
+ !Number.isSafeInteger(messageId)||messageId<1||!decodeBreads(mask)||typeof sig!=='string'||typeof sender!=='string'||
  typeof expires!=='string'||!/^\d{10}$/.test(expires)||
  Number(expires)<Math.floor(Date.now()/1000)||
  Number(expires)>Math.floor(Date.now()/1000)+EDIT_LIFETIME)return false;
- return safeEqual(sig,editSignature(branch,date,mask,messageId,expires));
+ return safeEqual(sig,editSignature(branch,date,mask,messageId,expires,sender));
 }
 export function ownerButton(url){
  return {inline_keyboard:[[{text:'Исправить план выпечки',url}]]};

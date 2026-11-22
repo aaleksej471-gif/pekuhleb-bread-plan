@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import { BREADS, BRANCH_NAMES } from '../shared/catalog.js';
+import { SENDERS } from '../shared/senders.js';
 import { makeEditUrl, ownerButton } from '../shared/owner-edit.js';
 
 // Stock image is only a fallback until our unedited bakery photo is present.
@@ -41,7 +42,7 @@ const validDate=(iso)=>{
   return !Number.isNaN(date.valueOf())&&date.toISOString().slice(0,10)===iso;
 };
 const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export const makeMessage=(branch,date,breads)=>{
+export const makeMessage=(branch,date,breads,sender='')=>{
   const day=new Date(date+'T12:00:00Z');
   const dayMonth=new Intl.DateTimeFormat('ru-RU',{
     timeZone:'UTC',day:'numeric',month:'long'
@@ -52,6 +53,7 @@ export const makeMessage=(branch,date,breads)=>{
   return [
     '<b>ПЛАН ВЫПЕЧКИ</b>',
     '<b>'+esc(BRANCH_NAMES[branch])+'</b> · '+esc(dayMonth),
+    ...(sender?['Отправил(а): '+esc(sender)]:[]),
     '',
     '<b>'+heading+'</b>',
     ...breads.map(x=>'✓ '+esc(x))
@@ -73,6 +75,9 @@ export default async function handler(req,res){
     return json(res,503,{ok:false,message:'Отправка в Telegram ещё не настроена'});
   if(!safeEqual(body.key,key))
     return json(res,401,{ok:false,message:'Откройте страницу по рабочему QR-коду пекарни'});
+  const sender=body.sender;
+  if(!SENDERS[branch].includes(sender))
+    return json(res,400,{ok:false,message:'Выберите своё имя из списка сотрудников'});
   const date=body.date;
   const today=moscowToday();
   if(!validDate(date)||date<today||date>addDays(today,180))
@@ -83,7 +88,7 @@ export default async function handler(req,res){
     return json(res,400,{ok:false,message:'Выберите хлеб из списка, без повторов'});
   // Сохраняем стабильный порядок, как в сетке на телефоне.
   const picked=BREADS.filter(x=>body.breads.includes(x));
-  const message=makeMessage(branch,date,picked);
+  const message=makeMessage(branch,date,picked,sender);
   // A selected shelf photo has been locally improved in the phone, not generated.
   // Keep the upload below Vercel's conservative 4.5MB request limit.
   let shelfPhoto=null;
@@ -135,7 +140,7 @@ export default async function handler(req,res){
     // Telegram private user IDs are positive; never risk sending edit access to a group.
     if(/^\d{4,20}$/.test(String(ownerChat||''))&&Number.isSafeInteger(messageId)&&messageId>0){
       try{
-        const editUrl=makeEditUrl({branch,date,breads:picked,messageId});
+        const editUrl=makeEditUrl({branch,date,breads:picked,messageId,sender});
         const ownerResponse=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendMessage',{
           method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({

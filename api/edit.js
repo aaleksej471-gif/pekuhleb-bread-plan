@@ -22,7 +22,8 @@ export default async function handler(req,res){
  const expires=body.expires;
  const sig=body.sig;
  const messageId=Number(body.messageId);
- if(!validEditLink({branch,date:originalDate,mask,messageId,expires,sig}))
+ const sender=body.sender??'';
+ if(!validEditLink({branch,date:originalDate,mask,messageId,expires,sig,sender}))
   return json(res,403,{ok:false,message:'Ссылка редактирования устарела или недействительна'});
  const date=body.date;
  const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{
@@ -38,7 +39,7 @@ export default async function handler(req,res){
   new Set(breads).size!==breads.length)
   return json(res,400,{ok:false,message:'Выберите хлеб из списка'});
  const chosen=BREADS.filter(x=>breads.includes(x));
- const text=makeMessage(branch,date,chosen);
+ const text=makeMessage(branch,date,chosen,sender);
  try{
   const response=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/editMessageCaption',{
    method:'POST',headers:{'Content-Type':'application/json'},
@@ -48,12 +49,12 @@ export default async function handler(req,res){
   const result=await response.json().catch(()=>({}));
   if(!response.ok||result.ok!==true){
    if(result.description?.includes('message is not modified')){
-    return json(res,200,{ok:true,message:'План уже соответствует выбранному списку',editUrl:makeEditUrl({branch,date,breads:chosen,messageId})});
+    return json(res,200,{ok:true,message:'План уже соответствует выбранному списку',editUrl:makeEditUrl({branch,date,breads:chosen,messageId,sender})});
    }
    console.error('Bread plan edit rejected:',response.status,result.error_code||'unknown');
    return json(res,502,{ok:false,message:'Бот не смог исправить сообщение. Возможно, оно слишком старое или было удалено.'});
   }
-  return json(res,200,{ok:true,message:'План изменён в Telegram',editUrl:makeEditUrl({branch,date,breads:chosen,messageId})});
+  return json(res,200,{ok:true,message:'План изменён в Telegram',editUrl:makeEditUrl({branch,date,breads:chosen,messageId,sender})});
  }catch(e){
   console.error('Bread edit network issue:',String(e?.name||'unknown'));
   return json(res,502,{ok:false,message:'Не удалось связаться с Telegram. Попробуйте ещё раз.'});
