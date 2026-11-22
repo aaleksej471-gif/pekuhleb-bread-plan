@@ -41,7 +41,7 @@ const moveMonth=(iso,step)=>{
 };
 const prettyDate=iso=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',day:'numeric',month:'long',year:'numeric'}).format(new Date(iso+'T12:00:00Z'));
 const prettyMonth=iso=>new Intl.DateTimeFormat('ru-RU',{timeZone:'UTC',month:'long',year:'numeric'}).format(new Date(iso+'T12:00:00Z'));
-let targetDate=editMode&&/^\d{4}-\d{2}-\d{2}$/.test(params.get('d')||'')?params.get('d'):addDays(todayInMoscow(),1);
+let targetDate=editMode&&/^\d{4}-\d{2}-\d{2}$/.test(params.get('d')||'')?params.get('d'):todayInMoscow();
 let shownMonth=targetDate.slice(0,7)+'-01';
 $('branchName').textContent=branchNames[branch];
 $('modalBranch').textContent=branchNames[branch];
