@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import { BREADS, BRANCH_NAMES } from '../shared/catalog.js';
+import { makeEditUrl, ownerButton } from '../shared/owner-edit.js';
 
 const KEY_ENV = {
   obrazcovaya: 'BREAD_KEY_OBRAZCOVAYA',
@@ -88,6 +89,28 @@ export default async function handler(req,res){
     if(!response.ok||data.ok!==true){
       console.error('Bread plan Telegram delivery failed:',response.status,data.error_code||'');
       return json(res,502,{ok:false,message:'Telegram не принял сообщение. Попробуйте ещё раз или сообщите администратору.'});
+    }
+    // Only the owner receives a private edit link. It is NOT shown in the staff group.
+    const messageId=data.result?.message_id;
+    const ownerChat=process.env.TELEGRAM_OWNER_CHAT_ID;
+    if(ownerChat&&Number.isSafeInteger(messageId)&&messageId>0){
+      try{
+        const editUrl=makeEditUrl({branch,date,breads:picked,messageId});
+        const ownerResponse=await fetch('https://api.telegram.org/bot'+process.env.TELEGRAM_BOT_TOKEN+'/sendMessage',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            chat_id:ownerChat,
+            text:'План выпечки · '+BRANCH_NAMES[branch]+' · '+date+'\nДля исправления сообщения нажми кнопку:',
+            reply_markup:ownerButton(editUrl)
+          }),
+          signal:AbortSignal.timeout(10000)
+        });
+        const ownerResult=await ownerResponse.json().catch(()=>({}));
+        if(!ownerResponse.ok||ownerResult.ok!==true)
+          console.error('Bread owner edit invitation not delivered',ownerResponse.status,ownerResult.error_code||'');
+      }catch(e){
+        console.error('Bread owner edit invitation failed:',String(e?.name||'unknown'));
+      }
     }
     return json(res,200,{ok:true,message:'План выпечки отправлен в Telegram',date,branch,count:picked.length});
   }catch(error){
