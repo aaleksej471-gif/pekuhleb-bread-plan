@@ -1,0 +1,27 @@
+/* Peku Hleb 26.9: one transition owner per interaction. */
+:root{--peku-motion-ease:cubic-bezier(.22,.72,.24,1)}
+html,html *{-webkit-tap-highlight-color:transparent!important}
+@view-transition{navigation:auto}
+::view-transition{background:var(--paper,#f3eee3)}
+::view-transition-group(root){animation-duration:360ms;animation-timing-function:cubic-bezier(.22,.72,.24,1)}
+::view-transition-image-pair(root){isolation:isolate}
+::view-transition-old(root){opacity:0;animation:none;mix-blend-mode:normal}
+::view-transition-new(root){z-index:1;animation:peku-motion-enter 360ms cubic-bezier(.22,.72,.24,1) both;mix-blend-mode:normal}
+@keyframes peku-motion-enter{from{opacity:.84}to{opacity:1}}
+@keyframes peku-motion-window-in{from{opacity:0;scale:.985}to{opacity:1;scale:1}}
+@keyframes peku-motion-shade-in{from{opacity:0}to{opacity:1}}
+html.peku-motion-arrival body{animation:peku-motion-enter 360ms var(--peku-motion-ease) both}
+html:not(.peku-motion-studio) dialog[open]{animation:peku-motion-window-in 400ms var(--peku-motion-ease) both}
+html:not(.peku-motion-studio) dialog[open]::backdrop{animation:peku-motion-shade-in 300ms var(--peku-motion-ease) both}
+@supports (transition-behavior:allow-discrete){
+ html:not(.peku-motion-studio) dialog{opacity:0;scale:.985;transition:opacity 280ms var(--peku-motion-ease),scale 280ms var(--peku-motion-ease),display 280ms allow-discrete,overlay 280ms allow-discrete}
+ html:not(.peku-motion-studio) dialog[open]{opacity:1;scale:1;animation:none;transition-duration:400ms}
+ html:not(.peku-motion-studio) dialog::backdrop{opacity:0;transition:opacity 280ms var(--peku-motion-ease),display 280ms allow-discrete,overlay 280ms allow-discrete}
+ html:not(.peku-motion-studio) dialog[open]::backdrop{opacity:1;animation:none;transition-duration:300ms}
+ @starting-style{html:not(.peku-motion-studio) dialog[open]{opacity:0;scale:.985}html:not(.peku-motion-studio) dialog[open]::backdrop{opacity:0}}
+}
+@media(prefers-reduced-motion:reduce){
+ @view-transition{navigation:none}
+ ::view-transition-group(root),::view-transition-old(root),::view-transition-new(root),html.peku-motion-arrival body,html:not(.peku-motion-studio) dialog[open],html:not(.peku-motion-studio) dialog[open]::backdrop{animation:none!important;transition:none!important}
+ html:not(.peku-motion-studio) dialog,html:not(.peku-motion-studio) dialog::backdrop{transition:none!important}
+}
